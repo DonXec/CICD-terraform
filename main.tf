@@ -2,7 +2,7 @@
 locals {
   Ressource_Group_Name     = "Abdurrahman-yildirim-rg"
   Ressource_Group_Location = "North Europe"
-  Ssh_Username             = "techstarter"
+  Ssh_Username             = "azureuser"
   Ssh_Password             = "techstarter2342!"
 }
 
@@ -12,7 +12,7 @@ resource "azurerm_resource_group" "cicdproject" {
   location = local.Ressource_Group_Location
 }
 
-# public ssh key
+# public ssh key 
 resource "azurerm_ssh_public_key" "sshkey" {
   name                = "Abdu"
   location            = local.Ressource_Group_Location
@@ -97,6 +97,23 @@ resource "azurerm_network_security_group" "nsg" {
 resource "azurerm_network_security_rule" "sshd" {
   name                        = "sshd"
   priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = local.Ressource_Group_Name
+  network_security_group_name = azurerm_network_security_group.nsg.name
+
+  depends_on = [
+    azurerm_network_security_group.nsg
+  ]
+}
+resource "azurerm_network_security_rule" "port8080" {
+  name                        = "AllowAnyCustom8080Inbound"
+  priority                    = 111
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
